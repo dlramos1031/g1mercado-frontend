@@ -18,11 +18,11 @@ const LoginPage = ({ navigation }) => {
         setIsSuccess(true);
   
         // Check if the user is an admin
-        if (response.data.user.role === 'admin') {
-          navigation.navigate('AdminDashboard');  // Navigate to Admin Dashboard
-        } else {
-          navigation.navigate('HomePage');  // Navigate to Home Page
-        }
+        //if (response.data.user.role === 'admin') {
+        //  navigation.navigate('AdminDashboard');  // Navigate to Admin Dashboard
+        //} else {
+        navigation.navigate('HomePage');  // Navigate to Home Page
+        //}
       } else {
         setMessage('Login failed. Please try again.');
         setIsSuccess(false);
