@@ -1,108 +1,94 @@
-// Import necessary modules and components from React and React Native
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import axios from 'axios'; // Import axios for making HTTP requests
+import axios from 'axios';
 
-// Define the UserProfile component, which takes `route` and `navigation` as props
 const UserProfile = ({ route, navigation }) => {
-  // Extract `userId` and `role` from the navigation route parameters
-  const { userId, role } = route.params;
+  const { userId, role } = route.params; // Get userId and role from navigation params
 
-  // State to store user details
   const [user, setUser] = useState({
     firstname: '',
     lastname: '',
     email: '',
   });
 
-  // Fetch user details when the component mounts or when `userId` changes
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        // Make a GET request to fetch user details using the provided userId
         const response = await axios.get(`http://192.168.56.1:5000/users/${userId}`);
-        setUser(response.data); // Update the state with the fetched user details
+        setUser(response.data); // Update state with fetched user details
       } catch (error) {
-        console.error('Error fetching user details:', error); // Log any errors
+        console.error('Error fetching user details:', error);
       }
     };
 
-    fetchUserDetails(); // Call the function to fetch user details
+    fetchUserDetails();
   }, [userId]);
 
-  // Function to navigate to the appropriate home screen based on the user's role
   const handleHomeNavigation = () => {
     if (role === 'admin') {
-      navigation.navigate('AdminDashboard', { userId, role }); // Navigate to admin dashboard
+      navigation.navigate('AdminDashboard', { userId, role });
     } else {
-      navigation.navigate('HomePage', { userId, role }); // Navigate to user home page
+      navigation.navigate('HomePage', { userId, role });
     }
   };
 
-  // Function to handle logout with a confirmation alert
   const handleLogout = () => {
+
     Alert.alert(
-      'Logout', // Alert title
-      'Are you sure you want to log out?', // Alert message
+      'Logout',
+      'Are you sure you want to log out?',
       [
-        { text: 'Cancel', style: 'cancel' }, // Cancel button
         {
-          text: 'OK', // Confirm button
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
           onPress: () => {
-            navigation.navigate('LoginPage'); // Navigate to the login page
+            navigation.navigate('LoginPage'); // Navigate to login page
           },
         },
       ],
-      { cancelable: false } // Prevent dismissing the alert by tapping outside
+      { cancelable: false }
     );
   };
 
   return (
     <View style={styles.container}>
-      {/* Header section with profile title and avatar */}
       <View style={styles.header}>
         <Text style={styles.profileText}>Profile</Text>
         <View style={styles.avatar}></View>
       </View>
 
-      {/* Section to display user details */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>First Name</Text>
-        {/* Display user's first name in a non-editable input */}
         <TextInput style={styles.input} value={user.firstname} editable={false} />
 
         <Text style={styles.label}>Last Name</Text>
-        {/* Display user's last name in a non-editable input */}
         <TextInput style={styles.input} value={user.lastname} editable={false} />
 
         <Text style={styles.label}>Email</Text>
-        {/* Display user's email in a non-editable input */}
         <TextInput style={styles.input} value={user.email} editable={false} />
       </View>
 
-      {/* Button to change password (currently not functional) */}
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Change Password</Text>
       </TouchableOpacity>
 
-      {/* Logout button */}
+      {/* Logout Button */}
       <TouchableOpacity style={[styles.button, { backgroundColor: 'red' }]} onPress={handleLogout}>
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
 
-      {/* Bottom navigation with home, favorites, and user profile buttons */}
       <View style={styles.bottomNav}>
-        {/* Navigate to home */}
         <TouchableOpacity onPress={handleHomeNavigation}>
           <Image source={require('./Icons/home.png')} style={styles.icon} />
         </TouchableOpacity>
 
-        {/* Navigate to favorites */}
         <TouchableOpacity onPress={() => navigation.navigate('Favorites', { userId, role })}>
           <Image source={require('./Icons/heart.png')} style={styles.icon} />
         </TouchableOpacity>
 
-        {/* Navigate to user profile */}
         <TouchableOpacity onPress={() => navigation.navigate('UserProfile', { userId, role })}>
           <Image source={require('./Icons/user.png')} style={styles.icon} />
         </TouchableOpacity>
@@ -111,10 +97,9 @@ const UserProfile = ({ route, navigation }) => {
   );
 };
 
-// Styles for the component
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Take up the entire screen
+    flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     paddingTop: 50,

@@ -1,131 +1,111 @@
-// Import necessary modules and components from React and React Native
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Modal, FlatList, Image } from 'react-native';
 
-// Define the AddProduct component
 const AddProduct = ({ navigation }) => {
-  // State variables to store user inputs for the product
-  const [productName, setProductName] = useState(''); // Product name input
-  const [description, setDescription] = useState(''); // Description input
-  const [price, setPrice] = useState(''); // Price input
+  const [productName, setProductName] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [category, setCategory] = useState('Carmen');
+  const [type, setType] = useState('Meat');
+  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
+  const [isTypeModalVisible, setIsTypeModalVisible] = useState(false);
 
-  // State variables for selected category and type
-  const [category, setCategory] = useState('Carmen'); // Default category
-  const [type, setType] = useState('Meat'); // Default type
-
-  // State variables to manage visibility of category and type modals
-  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false); // Show/hide category modal
-  const [isTypeModalVisible, setIsTypeModalVisible] = useState(false); // Show/hide type modal
-
-  // Define lists for available categories and types
   const categories = ['Carmen', 'Cogon'];
   const types = ['Meat', 'Rice', 'Fish', 'Vegetables', 'Fruits'];
 
-  // Function to handle the addition of a new product
   const handleAddProduct = () => {
-    // Send a POST request to the server with the product data
     fetch('http://192.168.56.1:5000/add-product', {
-      method: 'POST', // HTTP method
+      method: 'POST',
       headers: {
-        'Content-Type': 'application/json', // Specify the content type
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        product_name: productName, // Pass the product name
-        description: description, // Pass the description
-        price: parseFloat(price), // Convert price to a number
-        category: category, // Pass the selected category
-        type: type, // Pass the selected type
+        product_name: productName,
+        description: description,
+        price: parseFloat(price),
+        category: category,
+        type: type,
       }),
     })
       .then((response) => {
         if (!response.ok) {
-          // If the response is not OK, throw an error
           throw new Error('Failed to add product. Please try again.');
         }
-        return response.json(); // Parse the JSON response
+        return response.json();
       })
       .then((data) => {
-        alert(data.message); // Show a message based on the server's response
+        alert(data.message);
         if (data.message === 'Product added successfully!') {
-          // Navigate to the respective product page based on the category
           navigation.navigate(category === 'Carmen' ? 'CarmenProduct' : 'CogonProduct');
         }
       })
       .catch((error) => {
-        console.error('Error adding product:', error); // Log any errors
-        alert('Failed to add product. Please try again.'); // Show an error message
+        console.error('Error adding product:', error);
+        alert('Failed to add product. Please try again.');
       });
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {/* Title */}
         <Text style={styles.title}>Add Product</Text>
-
-        {/* Input field for the product name */}
         <TextInput
           style={styles.input}
-          placeholder="Product Name" // Placeholder text
-          value={productName} // Bind value to state
-          onChangeText={setProductName} // Update state on change
+          placeholder="Product Name"
+          value={productName}
+          onChangeText={setProductName}
         />
-
-        {/* Input field for the description */}
         <TextInput
           style={styles.input}
           placeholder="Description"
           value={description}
           onChangeText={setDescription}
         />
-
-        {/* Input field for the price */}
         <TextInput
           style={styles.input}
           placeholder="Price"
-          keyboardType="numeric" // Numeric keyboard for price
+          keyboardType="numeric"
           value={price}
           onChangeText={setPrice}
         />
 
-        {/* Button to open the category dropdown modal */}
+        {/* Category Dropdown */}
         <TouchableOpacity
           style={styles.dropdown}
-          onPress={() => setIsCategoryModalVisible(true)} // Show category modal
+          onPress={() => setIsCategoryModalVisible(true)}
         >
-          <Text style={styles.dropdownText}>{category}</Text> {/* Display selected category */}
+          <Text style={styles.dropdownText}>{category}</Text>
         </TouchableOpacity>
 
-        {/* Button to open the type dropdown modal */}
+        {/* Type Dropdown */}
         <TouchableOpacity
           style={styles.dropdown}
-          onPress={() => setIsTypeModalVisible(true)} // Show type modal
+          onPress={() => setIsTypeModalVisible(true)}
         >
-          <Text style={styles.dropdownText}>{type}</Text> {/* Display selected type */}
+          <Text style={styles.dropdownText}>{type}</Text>
         </TouchableOpacity>
 
-        {/* Modal for selecting a category */}
+        {/* Modal for Category */}
         <Modal
-          visible={isCategoryModalVisible} // Modal visibility
-          transparent={true} // Make the modal background transparent
-          animationType="fade" // Animation type for modal
-          onRequestClose={() => setIsCategoryModalVisible(false)} // Close modal on request
+          visible={isCategoryModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsCategoryModalVisible(false)}
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              {/* List of categories */}
               <FlatList
-                data={categories} // List data
-                keyExtractor={(item) => item} // Unique key for each item
+                data={categories}
+                keyExtractor={(item) => item}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.modalItem}
                     onPress={() => {
-                      setCategory(item); // Update the selected category
-                      setIsCategoryModalVisible(false); // Hide the modal
+                      setCategory(item);
+                      setIsCategoryModalVisible(false);
                     }}
                   >
-                    <Text style={styles.modalItemText}>{item}</Text> {/* Display category */}
+                    <Text style={styles.modalItemText}>{item}</Text>
                   </TouchableOpacity>
                 )}
               />
@@ -133,7 +113,7 @@ const AddProduct = ({ navigation }) => {
           </View>
         </Modal>
 
-        {/* Modal for selecting a type */}
+        {/* Modal for Type */}
         <Modal
           visible={isTypeModalVisible}
           transparent={true}
@@ -142,7 +122,6 @@ const AddProduct = ({ navigation }) => {
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              {/* List of types */}
               <FlatList
                 data={types}
                 keyExtractor={(item) => item}
@@ -150,11 +129,11 @@ const AddProduct = ({ navigation }) => {
                   <TouchableOpacity
                     style={styles.modalItem}
                     onPress={() => {
-                      setType(item); // Update the selected type
-                      setIsTypeModalVisible(false); // Hide the modal
+                      setType(item);
+                      setIsTypeModalVisible(false);
                     }}
                   >
-                    <Text style={styles.modalItemText}>{item}</Text> {/* Display type */}
+                    <Text style={styles.modalItemText}>{item}</Text>
                   </TouchableOpacity>
                 )}
               />
@@ -162,45 +141,41 @@ const AddProduct = ({ navigation }) => {
           </View>
         </Modal>
 
-        {/* Button to add the product */}
         <TouchableOpacity style={styles.button} onPress={handleAddProduct}>
           <Text style={styles.buttonText}>Add Product</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Bottom navigation bar */}
+      {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
-        {/* Navigate to the home page */}
         <TouchableOpacity onPress={() => navigation.navigate('HomePage')}>
           <Image source={require('./Icons/home.png')} style={styles.icon} />
         </TouchableOpacity>
-
-        {/* Navigate to the favorites page */}
         <TouchableOpacity onPress={() => navigation.navigate('Favorites')}>
           <Image source={require('./Icons/heart.png')} style={styles.icon} />
         </TouchableOpacity>
-
-        {/* Navigate back to the previous screen */}
+        {/* Change this to back.png and go back to AdminDashboard */}
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./Icons/back.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
+
+
     </View>
   );
 };
 
-// Define styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f4f4f4',
   },
   content: {
-    flex: 1,
+    flex: 1, // Allow the content to take up available space
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    paddingBottom: 80,
+    paddingBottom: 80, // Added padding to avoid overlap with the bottom nav bar
   },
   title: {
     fontSize: 24,

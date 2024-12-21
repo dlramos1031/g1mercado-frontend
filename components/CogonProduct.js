@@ -1,93 +1,76 @@
-import React, { useEffect, useState } from 'react'; // Import React and hooks for managing state and side effects
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native'; // Import React Native components for UI
-import axios from 'axios'; // Import axios for making API requests
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
+import axios from 'axios';
 
-// Define the CogonProduct component and pass navigation as a prop
 const CogonProduct = ({ navigation }) => {
-  // State to hold product data fetched from the API
   const [products, setProducts] = useState([]);
-  // State for filtered products to show based on search or category
   const [filteredProducts, setFilteredProducts] = useState([]);
-  // State to track the currently selected product category
   const [selectedCategory, setSelectedCategory] = useState('Cogon');
-  // State for the selected product type within a category
-  const [selectedType, setSelectedType] = useState(''); 
-  // State to toggle the search input visibility
+  const [selectedType, setSelectedType] = useState(''); // For storing the selected type
   const [isSearchActive, setIsSearchActive] = useState(false);
-  // State to track the user's search query
   const [searchQuery, setSearchQuery] = useState('');
 
-  // useEffect to fetch product data whenever selectedCategory or selectedType changes
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Make an API request to fetch products with the selected category and type
-        const response = await axios.get(`http://172.22.97.121:5000/products`, {
+        const response = await axios.get(`http://192.168.56.1:5000/products`, {
           params: { category: selectedCategory, type: selectedType },
         });
-        setProducts(response.data); // Save fetched data to the state
-        setFilteredProducts(response.data); // Initialize filtered products
+        setProducts(response.data);
+        setFilteredProducts(response.data);
       } catch (error) {
-        console.error('Error fetching products:', error.message); // Log any errors that occur
+        console.error('Error fetching products:', error.message);
       }
     };
 
-    fetchProducts(); // Call the function to fetch products
-  }, [selectedCategory, selectedType]); // Dependencies ensure this runs when these states change
+    fetchProducts();
+  }, [selectedCategory, selectedType]);
 
-  // useEffect to filter products based on the search query
   useEffect(() => {
     if (searchQuery) {
-      // Filter products to include only those matching the search query
       const filtered = products.filter(product =>
         product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setFilteredProducts(filtered); // Update the filtered products list
+      setFilteredProducts(filtered);
     } else {
-      setFilteredProducts(products); // Reset to show all products if no query
+      setFilteredProducts(products); // Show all products if the search query is empty
     }
-  }, [searchQuery, products]); // Runs whenever searchQuery or products change
+  }, [searchQuery, products]);
 
-  // Function to handle category selection
   const handleCategoryClick = (category, type) => {
-    setSelectedCategory(category); // Update the selected category
-    setSelectedType(type); // Update the selected type
+    setSelectedCategory(category);
+    setSelectedType(type); // Set the selected type based on category
   };
 
-  // Function to toggle the search bar's visibility
   const handleSearchToggle = () => {
-    setIsSearchActive(!isSearchActive); // Toggle search active state
-    setSearchQuery(''); // Reset search query
+    setIsSearchActive(!isSearchActive);
+    setSearchQuery('');
   };
 
-  // Render a single product item in a card layout
   const renderProduct = ({ item }) => (
     <View style={styles.productCard}>
       {item.imageUrl ? (
-        // Display product image if available
         <Image
           source={{ uri: item.imageUrl }}
           style={styles.productImage}
         />
       ) : (
-        // Show a placeholder if no image is available
         <View style={styles.productImagePlaceholder} />
       )}
-      <Text style={styles.productName}>{item.product_name}</Text> {/* Product name */}
-      <Text style={styles.product_description}>{item.description}</Text> {/* Product description */}
-      <Text style={styles.productPrice}>₱{item.price}</Text> {/* Product price */}
-      <Text style={styles.productType}>{item.type}</Text> {/* Product type */}
+      <Text style={styles.productName}>{item.product_name}</Text>
+      <Text style={styles.product_description}>{item.description}</Text>
+      <Text style={styles.productPrice}>₱{item.price}</Text>
+      <Text style={styles.productType}>{item.type}</Text>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      {/* Category selection section */}
       <View style={styles.categoryContainer}>
         <TouchableOpacity onPress={() => handleCategoryClick('Meats', 'Meat')}>
           <View style={[styles.categoryItem, { backgroundColor: '#e1eff7' }]}>
             <Image source={require('./Images/meat.png')} style={styles.categoryImage} />
-            <Text>Meats</Text> {/* Category label */}
+            <Text>Meats</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => handleCategoryClick('Seafoods', 'Fish')}>
@@ -116,10 +99,9 @@ const CogonProduct = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Cogon Products</Text> {/* Title for the products section */}
+      <Text style={styles.title}>Cogon Products</Text>
 
       {isSearchActive && (
-        // Search input visible when search is active
         <TextInput
           style={styles.searchInput}
           placeholder="Search Products"
@@ -129,24 +111,22 @@ const CogonProduct = ({ navigation }) => {
         />
       )}
 
-      {/* List of products displayed in a grid */}
       <FlatList
         data={filteredProducts}
-        keyExtractor={(item) => item.id.toString()} // Unique key for each item
-        renderItem={renderProduct} // Render each product using the renderProduct function
-        numColumns={2} // Show two products per row
-        columnWrapperStyle={styles.row} // Style for each row
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderProduct}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
       />
 
-      {/* Bottom navigation bar */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity onPress={() => navigation.navigate('HomePage')}> {/* Navigate to HomePage */}
+        <TouchableOpacity onPress={() => navigation.navigate('HomePage')}>
           <Image source={require('./Icons/home.png')} style={styles.icon} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleSearchToggle}> {/* Toggle search */}
+        <TouchableOpacity onPress={handleSearchToggle}>
           <Image source={require('./Icons/search.png')} style={styles.icon} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.goBack()}> {/* Navigate back */}
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./Icons/back.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
@@ -259,7 +239,7 @@ const styles = StyleSheet.create({
 
   productImage: {
     width: '100%',
-    height: 100, 
+    height: 100, // You can adjust this value as needed
     borderRadius: 8,
     marginBottom: 10,
   },

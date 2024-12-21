@@ -3,90 +3,77 @@ import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal, Alert, Touc
 import axios from 'axios';
 
 const ProductList = ({ navigation }) => {
-  // State to store the list of products fetched from the API
   const [products, setProducts] = useState([]);
-
-  // State to store the product currently selected for editing
   const [selectedProduct, setSelectedProduct] = useState(null);
-
-  // State to control the visibility of the edit modal
   const [modalVisible, setModalVisible] = useState(false);
-
-  // State to store the form data for editing a product
   const [form, setForm] = useState({
-    product_name: '', // Name of the product
-    description: '',  // Description of the product
-    price: '',        // Price of the product
-    category: '',     // Category of the product
+    product_name: '',
+    description: '',
+    price: '',
+    category: '',
   });
 
-  // useEffect hook to fetch all products when the component mounts
   useEffect(() => {
     fetchAllProducts();
   }, []);
 
-  // Function to fetch all products from the server
   const fetchAllProducts = async () => {
     try {
-      const response = await axios.get('http://192.168.56.1:5000/products/all'); // API call to fetch products
-      setProducts(response.data); // Update the products state with the fetched data
+      const response = await axios.get('http://192.168.56.1:5000/products/all');
+      setProducts(response.data);
     } catch (err) {
-      console.error('Error fetching products:', err.message); // Log any errors
-      Alert.alert('Error', 'Failed to fetch products. Please try again.'); // Show error message to the user
+      console.error('Error fetching products:', err.message);
+      Alert.alert('Error', 'Failed to fetch products. Please try again.');
     }
   };
 
-  // Function to open the edit modal and prefill the form with the selected product's data
   const openEditModal = (product) => {
-    setSelectedProduct(product); // Set the selected product
+    setSelectedProduct(product);
     setForm({
-      product_name: product.product_name, // Prefill product name
-      description: product.description,   // Prefill description
-      price: product.price.toString(),    // Convert price to string and prefill
-      category: product.category,         // Prefill category
+      product_name: product.product_name,
+      description: product.description,
+      price: product.price.toString(),
+      category: product.category,
     });
-    setModalVisible(true); // Show the modal
+    setModalVisible(true);
   };
 
-  // Function to handle changes in the input fields of the form
   const handleInputChange = (field, value) => {
     setForm((prevForm) => ({
-      ...prevForm,  // Keep the previous form data
-      [field]: value, // Update the specific field with the new value
+      ...prevForm,
+      [field]: value,
     }));
   };
 
-  // Function to update the product details on the server
   const updateProduct = async () => {
-    if (!selectedProduct) return; // If no product is selected, do nothing
+    if (!selectedProduct) return;
 
     try {
-      await axios.put(`http://192.168.56.1:5000/products/update/${selectedProduct.id}`, form); // API call to update product
-      Alert.alert('Success', 'Product updated successfully!'); // Show success message
-      setModalVisible(false); // Hide the modal
+      await axios.put(`http://192.168.56.1:5000/products/update/${selectedProduct.id}`, form);
+      Alert.alert('Success', 'Product updated successfully!');
+      setModalVisible(false);
       fetchAllProducts(); // Refresh the product list
     } catch (err) {
-      console.error('Error updating product:', err.message); // Log any errors
-      Alert.alert('Error', 'Failed to update product. Please try again.'); // Show error message to the user
+      console.error('Error updating product:', err.message);
+      Alert.alert('Error', 'Failed to update product. Please try again.');
     }
   };
 
-  // Function to render each product in the list
   const renderProduct = ({ item }) => (
     <View style={styles.row}>
-      <Text style={styles.cell}>{item.product_name}</Text> {/* Display product name */}
-      <Text style={styles.cell}>{item.description}</Text>  {/* Display product description */}
-      <Text style={styles.cell}>₱{item.price}</Text>       {/* Display product price */}
-      <Text style={styles.cell}>{item.category}</Text>     {/* Display product category */}
-      <Button title="Edit" onPress={() => openEditModal(item)} /> {/* Button to open edit modal */}
+      <Text style={styles.cell}>{item.product_name}</Text>
+      <Text style={styles.cell}>{item.description}</Text>
+      <Text style={styles.cell}>₱{item.price}</Text>
+      <Text style={styles.cell}>{item.category}</Text>
+      <Button title="Edit" onPress={() => openEditModal(item)} />
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>All Products</Text> {/* Page title */}
+      <Text style={styles.title}>All Products</Text>
 
-      {/* Header Row for table-like structure */}
+      {/* Header Row */}
       <View style={styles.headerRow}>
         <Text style={styles.headerCell}>Product Name</Text>
         <Text style={styles.headerCell}>Description</Text>
@@ -95,23 +82,22 @@ const ProductList = ({ navigation }) => {
         <Text style={styles.headerCell}>Action</Text>
       </View>
 
-      {/* List of products */}
+      {/* Product List */}
       <FlatList
-        data={products} // Data for the list
-        keyExtractor={(item) => item.id.toString()} // Unique key for each item
-        renderItem={renderProduct} // Function to render each item
+        data={products}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderProduct}
       />
 
-      {/* Modal for editing product */}
+      {/* Edit Modal */}
       <Modal
-        visible={modalVisible} // Show or hide the modal
-        animationType="slide" // Animation type for the modal
-        onRequestClose={() => setModalVisible(false)} // Close the modal when requested
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Edit Product</Text> {/* Modal title */}
+          <Text style={styles.modalTitle}>Edit Product</Text>
 
-          {/* Input fields for editing */}
           <TextInput
             style={styles.input}
             placeholder="Product Name"
@@ -128,7 +114,7 @@ const ProductList = ({ navigation }) => {
             style={styles.input}
             placeholder="Price"
             value={form.price}
-            keyboardType="numeric" // Only allow numeric input
+            keyboardType="numeric"
             onChangeText={(value) => handleInputChange('price', value)}
           />
           <TextInput
@@ -138,7 +124,6 @@ const ProductList = ({ navigation }) => {
             onChangeText={(value) => handleInputChange('category', value)}
           />
 
-          {/* Buttons for updating or canceling */}
           <Button title="Update" onPress={updateProduct} />
           <Button title="Cancel" onPress={() => setModalVisible(false)} color="red" />
         </View>
@@ -147,13 +132,13 @@ const ProductList = ({ navigation }) => {
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
         <TouchableOpacity onPress={() => navigation.navigate('HomePage')}>
-          <Image source={require('./Icons/home.png')} style={styles.icon} /> {/* Navigate to Home */}
+          <Image source={require('./Icons/home.png')} style={styles.icon} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Favorites')}>
-          <Image source={require('./Icons/heart.png')} style={styles.icon} /> {/* Navigate to Favorites */}
+          <Image source={require('./Icons/heart.png')} style={styles.icon} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image source={require('./Icons/back.png')} style={styles.icon} /> {/* Go back to previous screen */}
+          <Image source={require('./Icons/back.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
     </View>

@@ -1,94 +1,87 @@
-import React, { useEffect, useState } from 'react'; // Import necessary React hooks and libraries
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native'; // Import essential React Native components
-import axios from 'axios'; // Import axios for making HTTP requests
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
+import axios from 'axios';
 
 const CarmenProduct = ({ navigation }) => {
-  // States to manage product data and filters
-  const [products, setProducts] = useState([]); // Holds the original list of products
-  const [filteredProducts, setFilteredProducts] = useState([]); // Holds the filtered list of products
-  const [selectedCategory, setSelectedCategory] = useState('Carmen'); // Default category filter
-  const [selectedType, setSelectedType] = useState(''); // Type filter, initially empty
-  const [isSearchActive, setIsSearchActive] = useState(false); // Toggles the search input visibility
-  const [searchQuery, setSearchQuery] = useState(''); // Holds the user's search query
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('Carmen');
+  const [selectedType, setSelectedType] = useState(''); // For storing the selected type
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch product data when the component loads or when category/type changes
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(`http://192.168.56.1:5000/products`, {
-          params: { category: selectedCategory, type: selectedType }, // Pass category and type as query parameters
+          params: { category: selectedCategory, type: selectedType },
         });
-        setProducts(response.data); // Store the fetched data
-        setFilteredProducts(response.data); // Initially, all products are shown
+        setProducts(response.data);
+        setFilteredProducts(response.data);
       } catch (error) {
-        console.error('Error fetching products:', error.message); // Log errors, if any
+        console.error('Error fetching products:', error.message);
       }
     };
 
-    // Mock data to display in case of no API response
     const mockData = Array(20).fill().map((_, i) => ({
       id: i + 1,
       product_name: `Product ${i + 1}`,
       description: `Description of product ${i + 1}`,
       price: `${(i + 1) * 10}`,
       type: 'Sample',
-      imageUrl: '', // Placeholder for image URL
+      imageUrl: '', // Add a valid image URL if testing images
     }));
-    setFilteredProducts(mockData); // Set mock data for initial display
+    setFilteredProducts(mockData);
+    
 
-    fetchProducts(); // Call the function to fetch data from the API
-  }, [selectedCategory, selectedType]); // Dependencies to re-run the effect when category or type changes
+    fetchProducts();
+  }, [selectedCategory, selectedType]);
 
-  // Filter products based on the search query
   useEffect(() => {
     if (searchQuery) {
       const filtered = products.filter(product =>
-        product.product_name.toLowerCase().includes(searchQuery.toLowerCase()) // Check if product name matches query
+        product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setFilteredProducts(filtered); // Update filtered products
+      setFilteredProducts(filtered);
     } else {
-      setFilteredProducts(products); // Show all products if search query is empty
+      setFilteredProducts(products); // Show all products if the search query is empty
     }
-  }, [searchQuery, products]); // Re-run when search query or product list changes
+  }, [searchQuery, products]);
 
-  // Update category and type when a category button is clicked
   const handleCategoryClick = (category, type) => {
-    setSelectedCategory(category); // Update selected category
-    setSelectedType(type); // Update selected type
+    setSelectedCategory(category);
+    setSelectedType(type); // Set the selected type based on category
   };
 
-  // Toggle the search input visibility
   const handleSearchToggle = () => {
-    setIsSearchActive(!isSearchActive); // Toggle search bar
-    setSearchQuery(''); // Clear the search query
+    setIsSearchActive(!isSearchActive);
+    setSearchQuery('');
   };
 
-  // Render a single product card
   const renderProduct = ({ item }) => (
     <View style={styles.productCard}>
       {item.imageUrl ? (
         <Image
-          source={{ uri: item.imageUrl }} // Use the product image URL
+          source={{ uri: item.imageUrl }}
           style={styles.productImage}
         />
       ) : (
-        <View style={styles.productImagePlaceholder} /> // Placeholder if no image URL is available
+        <View style={styles.productImagePlaceholder} />
       )}
-      <Text style={styles.productName}>{item.product_name}</Text> {/* Display product name */}
-      <Text style={styles.product_description}>{item.description}</Text> {/* Display product description */}
-      <Text style={styles.productPrice}>₱{item.price}</Text> {/* Display product price */}
-      <Text style={styles.productType}>{item.type}</Text> {/* Display product type */}
+      <Text style={styles.productName}>{item.product_name}</Text>
+      <Text style={styles.product_description}>{item.description}</Text>
+      <Text style={styles.productPrice}>₱{item.price}</Text>
+      <Text style={styles.productType}>{item.type}</Text>
     </View>
   );
 
   return (
-    <View style={styles.container}> {/* Main container */}
-      <View style={styles.categoryContainer}> {/* Container for category buttons */}
-        {/* Category buttons for filtering */}
+    <View style={styles.container}>
+      <View style={styles.categoryContainer}>
         <TouchableOpacity onPress={() => handleCategoryClick('Meats', 'Meat')}>
-          <View style={[styles.categoryItem, { backgroundColor: '#e1eff7' }]}> {/* Style for each category */}
-            <Image source={require('./Images/meat.png')} style={styles.categoryImage} /> {/* Category image */}
-            <Text>Meats</Text> {/* Category label */}
+          <View style={[styles.categoryItem, { backgroundColor: '#e1eff7' }]}>
+            <Image source={require('./Images/meat.png')} style={styles.categoryImage} />
+            <Text>Meats</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => handleCategoryClick('Seafoods', 'Fish')}>
@@ -117,7 +110,7 @@ const CarmenProduct = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Carmen Products</Text> {/* Page title */}
+      <Text style={styles.title}>Carmen Products</Text>
 
       {isSearchActive && (
         <TextInput
@@ -125,27 +118,27 @@ const CarmenProduct = ({ navigation }) => {
           placeholder="Search Products"
           value={searchQuery}
           onChangeText={setSearchQuery}
-          autoFocus // Automatically focus on the input field when active
+          autoFocus
         />
       )}
 
       <FlatList
-        data={filteredProducts} // Data source for the list
-        keyExtractor={(item) => item.id.toString()} // Unique key for each product
-        renderItem={renderProduct} // Render each product card
-        numColumns={2} // Display items in two columns
-        columnWrapperStyle={styles.row} // Style for each row of products
+        data={filteredProducts}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderProduct}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
       />
 
-      <View style={styles.bottomNav}> {/* Bottom navigation bar */}
+      <View style={styles.bottomNav}>
         <TouchableOpacity onPress={() => navigation.navigate('HomePage')}>
-          <Image source={require('./Icons/home.png')} style={styles.icon} /> {/* Home icon */}
+          <Image source={require('./Icons/home.png')} style={styles.icon} />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSearchToggle}>
-          <Image source={require('./Icons/search.png')} style={styles.icon} /> {/* Search icon */}
+          <Image source={require('./Icons/search.png')} style={styles.icon} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image source={require('./Icons/back.png')} style={styles.icon} /> {/* Back icon */}
+          <Image source={require('./Icons/back.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
     </View>
