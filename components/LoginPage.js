@@ -21,7 +21,7 @@ const LoginPage = ({ navigation }) => {
         //if (response.data.user.role === 'admin') {
         //  navigation.navigate('AdminDashboard');  // Navigate to Admin Dashboard
         //} else {
-        navigation.navigate('HomePage');  // Navigate to Home Page
+        navigation.navigate('AdminDashboard');  // Navigate to Home Page
         //}
       } else {
         setMessage('Login failed. Please try again.');
