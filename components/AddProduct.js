@@ -1,111 +1,131 @@
+// Import necessary modules and components from React and React Native
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Modal, FlatList, Image } from 'react-native';
 
+// Define the AddProduct component
 const AddProduct = ({ navigation }) => {
-  const [productName, setProductName] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
-  const [category, setCategory] = useState('Carmen');
-  const [type, setType] = useState('Meat');
-  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
-  const [isTypeModalVisible, setIsTypeModalVisible] = useState(false);
+  // State variables to store user inputs for the product
+  const [productName, setProductName] = useState(''); // Product name input
+  const [description, setDescription] = useState(''); // Description input
+  const [price, setPrice] = useState(''); // Price input
 
+  // State variables for selected category and type
+  const [category, setCategory] = useState('Carmen'); // Default category
+  const [type, setType] = useState('Meat'); // Default type
+
+  // State variables to manage visibility of category and type modals
+  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false); // Show/hide category modal
+  const [isTypeModalVisible, setIsTypeModalVisible] = useState(false); // Show/hide type modal
+
+  // Define lists for available categories and types
   const categories = ['Carmen', 'Cogon'];
   const types = ['Meat', 'Rice', 'Fish', 'Vegetables', 'Fruits'];
 
+  // Function to handle the addition of a new product
   const handleAddProduct = () => {
-    fetch('http://localhost:5000/add-product', {
-      method: 'POST',
+    // Send a POST request to the server with the product data
+    fetch('http://192.168.56.1:5000/add-product', {
+      method: 'POST', // HTTP method
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // Specify the content type
       },
       body: JSON.stringify({
-        product_name: productName,
-        description: description,
-        price: parseFloat(price),
-        category: category,
-        type: type,
+        product_name: productName, // Pass the product name
+        description: description, // Pass the description
+        price: parseFloat(price), // Convert price to a number
+        category: category, // Pass the selected category
+        type: type, // Pass the selected type
       }),
     })
       .then((response) => {
         if (!response.ok) {
+          // If the response is not OK, throw an error
           throw new Error('Failed to add product. Please try again.');
         }
-        return response.json();
+        return response.json(); // Parse the JSON response
       })
       .then((data) => {
-        alert(data.message);
+        alert(data.message); // Show a message based on the server's response
         if (data.message === 'Product added successfully!') {
+          // Navigate to the respective product page based on the category
           navigation.navigate(category === 'Carmen' ? 'CarmenProduct' : 'CogonProduct');
         }
       })
       .catch((error) => {
-        console.error('Error adding product:', error);
-        alert('Failed to add product. Please try again.');
+        console.error('Error adding product:', error); // Log any errors
+        alert('Failed to add product. Please try again.'); // Show an error message
       });
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
+        {/* Title */}
         <Text style={styles.title}>Add Product</Text>
+
+        {/* Input field for the product name */}
         <TextInput
           style={styles.input}
-          placeholder="Product Name"
-          value={productName}
-          onChangeText={setProductName}
+          placeholder="Product Name" // Placeholder text
+          value={productName} // Bind value to state
+          onChangeText={setProductName} // Update state on change
         />
+
+        {/* Input field for the description */}
         <TextInput
           style={styles.input}
           placeholder="Description"
           value={description}
           onChangeText={setDescription}
         />
+
+        {/* Input field for the price */}
         <TextInput
           style={styles.input}
           placeholder="Price"
-          keyboardType="numeric"
+          keyboardType="numeric" // Numeric keyboard for price
           value={price}
           onChangeText={setPrice}
         />
 
-        {/* Category Dropdown */}
+        {/* Button to open the category dropdown modal */}
         <TouchableOpacity
           style={styles.dropdown}
-          onPress={() => setIsCategoryModalVisible(true)}
+          onPress={() => setIsCategoryModalVisible(true)} // Show category modal
         >
-          <Text style={styles.dropdownText}>{category}</Text>
+          <Text style={styles.dropdownText}>{category}</Text> {/* Display selected category */}
         </TouchableOpacity>
 
-        {/* Type Dropdown */}
+        {/* Button to open the type dropdown modal */}
         <TouchableOpacity
           style={styles.dropdown}
-          onPress={() => setIsTypeModalVisible(true)}
+          onPress={() => setIsTypeModalVisible(true)} // Show type modal
         >
-          <Text style={styles.dropdownText}>{type}</Text>
+          <Text style={styles.dropdownText}>{type}</Text> {/* Display selected type */}
         </TouchableOpacity>
 
-        {/* Modal for Category */}
+        {/* Modal for selecting a category */}
         <Modal
-          visible={isCategoryModalVisible}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setIsCategoryModalVisible(false)}
+          visible={isCategoryModalVisible} // Modal visibility
+          transparent={true} // Make the modal background transparent
+          animationType="fade" // Animation type for modal
+          onRequestClose={() => setIsCategoryModalVisible(false)} // Close modal on request
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
+              {/* List of categories */}
               <FlatList
-                data={categories}
-                keyExtractor={(item) => item}
+                data={categories} // List data
+                keyExtractor={(item) => item} // Unique key for each item
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.modalItem}
                     onPress={() => {
-                      setCategory(item);
-                      setIsCategoryModalVisible(false);
+                      setCategory(item); // Update the selected category
+                      setIsCategoryModalVisible(false); // Hide the modal
                     }}
                   >
-                    <Text style={styles.modalItemText}>{item}</Text>
+                    <Text style={styles.modalItemText}>{item}</Text> {/* Display category */}
                   </TouchableOpacity>
                 )}
               />
@@ -113,7 +133,7 @@ const AddProduct = ({ navigation }) => {
           </View>
         </Modal>
 
-        {/* Modal for Type */}
+        {/* Modal for selecting a type */}
         <Modal
           visible={isTypeModalVisible}
           transparent={true}
@@ -122,6 +142,7 @@ const AddProduct = ({ navigation }) => {
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
+              {/* List of types */}
               <FlatList
                 data={types}
                 keyExtractor={(item) => item}
@@ -129,11 +150,11 @@ const AddProduct = ({ navigation }) => {
                   <TouchableOpacity
                     style={styles.modalItem}
                     onPress={() => {
-                      setType(item);
-                      setIsTypeModalVisible(false);
+                      setType(item); // Update the selected type
+                      setIsTypeModalVisible(false); // Hide the modal
                     }}
                   >
-                    <Text style={styles.modalItemText}>{item}</Text>
+                    <Text style={styles.modalItemText}>{item}</Text> {/* Display type */}
                   </TouchableOpacity>
                 )}
               />
@@ -141,41 +162,45 @@ const AddProduct = ({ navigation }) => {
           </View>
         </Modal>
 
+        {/* Button to add the product */}
         <TouchableOpacity style={styles.button} onPress={handleAddProduct}>
           <Text style={styles.buttonText}>Add Product</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Bottom Navigation Bar */}
+      {/* Bottom navigation bar */}
       <View style={styles.bottomNav}>
+        {/* Navigate to the home page */}
         <TouchableOpacity onPress={() => navigation.navigate('HomePage')}>
           <Image source={require('./Icons/home.png')} style={styles.icon} />
         </TouchableOpacity>
+
+        {/* Navigate to the favorites page */}
         <TouchableOpacity onPress={() => navigation.navigate('Favorites')}>
           <Image source={require('./Icons/heart.png')} style={styles.icon} />
         </TouchableOpacity>
-        {/* Change this to back.png and go back to AdminDashboard */}
+
+        {/* Navigate back to the previous screen */}
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./Icons/back.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
-
-
     </View>
   );
 };
 
+// Define styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f4f4f4',
   },
   content: {
-    flex: 1, // Allow the content to take up available space
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    paddingBottom: 80, // Added padding to avoid overlap with the bottom nav bar
+    paddingBottom: 80,
   },
   title: {
     fontSize: 24,
