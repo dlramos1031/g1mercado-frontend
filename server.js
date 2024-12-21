@@ -193,5 +193,5 @@ app.get('/products', (req, res) => {
 // Start the server and listen on the specified port
 const PORT = 5000; // Port number for the server
 app.listen(PORT, () => {
-  console.log(`Server running on http://172.22.97.121:${PORT}`); // Log the server address
+  console.log(`Server running on http://192.168.56.1:${PORT}`); // Log the server address
 });
