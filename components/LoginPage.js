@@ -10,7 +10,7 @@ const LoginPage = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://192.168.56.1:5000/login', { email, password });
+      const response = await axios.post('http://192.168.18.31:5000/login', { email, password });
 
       if (response.status === 200) {
         setMessage(response.data.message);
