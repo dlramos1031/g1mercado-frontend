@@ -17,7 +17,7 @@ const RegisterPage = ({ navigation }) => {
     }
 
     try {
-      const response = await axios.post('http://192.168.56.1:5000/register', {
+      const response = await axios.post('http://192.168.18.31:5000/register', {
         firstname,
         lastname,
         email,
