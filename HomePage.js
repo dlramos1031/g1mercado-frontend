@@ -73,9 +73,10 @@ const HomePage = ({ navigation, route }) => {
         <TouchableOpacity onPress={() => navigation.navigate('HomePage', { userId })}>
           <Image source={require('./Icons/home.png')} style={styles.icon} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Favorites', { userId })}>
-          <Image source={require('./Icons/heart.png')} style={styles.icon} />
+        <TouchableOpacity onPress={() => navigation.navigate('NotificationPage', { userId })}>
+          <Image source={require('./Icons/notification.png')} style={styles.icon} />
         </TouchableOpacity>
+
         <TouchableOpacity onPress={() => navigation.navigate('UserProfile', { userId })}>
           <Image source={require('./Icons/user.png')} style={styles.icon} />
         </TouchableOpacity>
