@@ -12,7 +12,7 @@ const path = require('path');
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '', 
+  password: '', // Replace with your MySQL root password
   database: 'the_mercado',
 });
 
@@ -183,8 +183,7 @@ app.get('/products', (req, res) => {
 
 
 // Start the server
-const HOSTNAME = "192.168.56.1"
 const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://${HOSTNAME}:${PORT}`);
+  console.log(`Server running on http://192.168.18.31:${PORT}`);
 });
