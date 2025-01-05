@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, TextInput, Modal } from 'react-native';
 import axios from 'axios';
 
 const CogonProduct = ({ navigation }) => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('Cogon');
-  const [selectedType, setSelectedType] = useState(''); // For storing the selected type
+  const [selectedType, setSelectedType] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isPriceRangeModalVisible, setIsPriceRangeModalVisible] = useState(false);
+  const [selectedPriceRange, setSelectedPriceRange] = useState('');
+  const priceRanges = ['100-200', '201-500', '501-1000', '1001-5000'];
 
+  // Fetch products when category or type changes
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(`http://192.168.56.1:5000/products`, {
+        const response = await axios.get('http://192.168.18.31:5000/products', {
           params: { category: selectedCategory, type: selectedType },
         });
         setProducts(response.data);
@@ -26,20 +30,28 @@ const CogonProduct = ({ navigation }) => {
     fetchProducts();
   }, [selectedCategory, selectedType]);
 
+  // Filter products when search query or price range changes
   useEffect(() => {
+    let filtered = products;
+
     if (searchQuery) {
-      const filtered = products.filter(product =>
+      filtered = filtered.filter((product) =>
         product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setFilteredProducts(filtered);
-    } else {
-      setFilteredProducts(products); // Show all products if the search query is empty
     }
-  }, [searchQuery, products]);
 
-  const handleCategoryClick = (category, type) => {
-    setSelectedCategory(category);
-    setSelectedType(type); // Set the selected type based on category
+    if (selectedPriceRange) {
+      const [minPrice, maxPrice] = selectedPriceRange.split('-').map(Number);
+      filtered = filtered.filter(
+        (product) => product.price >= minPrice && product.price <= maxPrice
+      );
+    }
+
+    setFilteredProducts(filtered);
+  }, [searchQuery, selectedPriceRange, products]);
+
+  const handleCategoryClick = (type) => {
+    setSelectedType(type);
   };
 
   const handleSearchToggle = () => {
@@ -50,15 +62,11 @@ const CogonProduct = ({ navigation }) => {
   const renderProduct = ({ item }) => (
     <View style={styles.productCard}>
       {item.imageUrl ? (
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={styles.productImage}
-        />
+        <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
       ) : (
         <View style={styles.productImagePlaceholder} />
       )}
       <Text style={styles.productName}>{item.product_name}</Text>
-      <Text style={styles.product_description}>{item.description}</Text>
       <Text style={styles.productPrice}>₱{item.price}</Text>
       <Text style={styles.productType}>{item.type}</Text>
     </View>
@@ -66,39 +74,6 @@ const CogonProduct = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.categoryContainer}>
-        <TouchableOpacity onPress={() => handleCategoryClick('Meats', 'Meat')}>
-          <View style={[styles.categoryItem, { backgroundColor: '#e1eff7' }]}>
-            <Image source={require('./Images/meat.png')} style={styles.categoryImage} />
-            <Text>Meats</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleCategoryClick('Seafoods', 'Fish')}>
-          <View style={[styles.categoryItem, { backgroundColor: '#eef8d8' }]}>
-            <Image source={require('./Images/fish.png')} style={styles.categoryImage} />
-            <Text>Seafoods</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleCategoryClick('Rice', 'Grain')}>
-          <View style={[styles.categoryItem, { backgroundColor: '#f9e5f0' }]}>
-            <Image source={require('./Images/rice.png')} style={styles.categoryImage} />
-            <Text>Rice</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleCategoryClick('Fruits', 'Fruit')}>
-          <View style={[styles.categoryItem, { backgroundColor: '#e5f4e3' }]}>
-            <Image source={require('./Images/fruits.png')} style={styles.categoryImage} />
-            <Text>Fruits</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleCategoryClick('Vegetables', 'Vegetable')}>
-          <View style={[styles.categoryItem, { backgroundColor: '#f8eada' }]}>
-            <Image source={require('./Images/vegetables.png')} style={styles.categoryImage} />
-            <Text>Vegetables</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-
       <Text style={styles.title}>Cogon Products</Text>
 
       {isSearchActive && (
@@ -110,6 +85,70 @@ const CogonProduct = ({ navigation }) => {
           autoFocus
         />
       )}
+
+      <View style={styles.categoryContainer}>
+        <TouchableOpacity onPress={() => handleCategoryClick('Meat')}>
+          <View style={styles.categoryItem}>
+            <Image source={require('./Images/meat.png')} style={styles.categoryImage} />
+            <Text>Meats</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleCategoryClick('Fish')}>
+          <View style={styles.categoryItem}>
+            <Image source={require('./Images/fish.png')} style={styles.categoryImage} />
+            <Text>Seafoods</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleCategoryClick('Rice')}>
+          <View style={styles.categoryItem}>
+            <Image source={require('./Images/rice.png')} style={styles.categoryImage} />
+            <Text>Rice</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleCategoryClick('Fruits')}>
+          <View style={styles.categoryItem}>
+            <Image source={require('./Images/fruits.png')} style={styles.categoryImage} />
+            <Text>Fruits</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleCategoryClick('Vegetables')}>
+          <View style={styles.categoryItem}>
+            <Image source={require('./Images/vegetables.png')} style={styles.categoryImage} />
+            <Text>Vegetables</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity onPress={() => setIsPriceRangeModalVisible(true)} style={styles.priceRangeButton}>
+        <Text style={styles.priceRangeText}>Select Price Range</Text>
+      </TouchableOpacity>
+
+      <Modal
+        visible={isPriceRangeModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsPriceRangeModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <FlatList
+              data={priceRanges}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.modalItem}
+                  onPress={() => {
+                    setSelectedPriceRange(item);
+                    setIsPriceRangeModalVisible(false);
+                  }}
+                >
+                  <Text style={styles.modalItemText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
 
       <FlatList
         data={filteredProducts}
@@ -164,6 +203,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 100,
     backgroundColor: '#eaeaea',
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  productImage: {
+    width: '100%',
+    height: 100, // You can adjust this value as needed
     borderRadius: 8,
     marginBottom: 10,
   },
@@ -236,15 +281,39 @@ const styles = StyleSheet.create({
     height: 20,
     tintColor: '#666',
   },
-
-  productImage: {
-    width: '100%',
-    height: 100, // You can adjust this value as needed
+  priceRangeButton: {
+    backgroundColor: '#f4f4f4',
+    padding: 10,
     borderRadius: 8,
-    marginBottom: 10,
+    marginVertical: 20,
+    alignItems: 'center',
   },
-  
-
+  priceRangeText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 8,
+    width: '80%',
+  },
+  modalItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  modalItemText: {
+    fontSize: 18,
+    color: '#333',
+  },
 });
 
 export default CogonProduct;
